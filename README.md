@@ -22,5 +22,17 @@ This repository contains:
 - Error handling & debugging
 
 ## 🔧 How to Use
+```bash
+# Clone the repo
+git clone https://github.com/naquiK/node.git
+
+# Navigate into the folder
+cd node
+
+# Install dependencies (if any)
+npm install
+
+# Run example file
+node index.js
 
 
