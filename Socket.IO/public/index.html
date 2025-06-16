@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>socket.io</title>
+    <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #user-list {
+      background-color: #fff;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #user-list h3 {
+      margin: 0;
+    }
+
+    #users {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 10px;
+    }
+
+    #users li {
+      padding: 5px 0;
+      color: #555;
+    }
+
+    #chats {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #e6ecf0;
+    }
+
+    #chats div {
+      background-color: #fff;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      max-width: 70%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    form {
+      display: flex;
+      padding: 10px;
+      background-color: #fff;
+      border-top: 1px solid #ddd;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+    <div id="user-list">
+        <h3>Online Users</h3>
+        <ul id="users">
+
+        </ul>
+    </div>
+    <div id="chats"></div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Type your message here..." />
+        <button type="submit">Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket=io()
+        const chat = document.getElementById('chats')
+        const usersList = document.getElementById('users')
+        const messageForm = document.getElementById('message-form')
+        const messageInput = document.getElementById('message-input')
+
+   
+
+        const userName = prompt('Enter your name:')
+        socket.emit('join', userName)
+
+        socket.on('userJoined', (user) => {
+        addMessage(`${user} has joined the chat.`)
+        })
+
+        socket.on('userLeft', (user) => {
+            addMessage(`${user} has left the chat.`)
+        })
+
+        socket.on('userList' , (users) =>{
+            usersList.innerHTML = users.map(user => `<li>${user}</li>`).join('')
+        })
+
+        //handle form submission
+
+
+        messageForm.addEventListener('submit', (e) => {
+            e.preventDefault()
+            const message = messageInput.value.trim()
+            if (message) {
+                socket.emit('chatMessage', { userName, text:message })
+                messageInput.value = ''
+            }
+        })
+
+        // Listen for incoming chat messages
+        socket.on('chatMessage', (data) => {
+            addMessage(`${data.userName}: ${data.text}`)
+        })
+
+
+
+
+        function addMessage(input){
+            const messageElement = document.createElement('div')
+            messageElement.textContent = input
+            chat.appendChild(messageElement)
+
+            // Scroll to the bottom of the chat
+            chat.scrollTop = chat.scrollHeight
+        }
+    </script>
+</body>
+</html>
